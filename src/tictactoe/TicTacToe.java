@@ -118,11 +118,11 @@ public class TicTacToe extends JFrame {
      * where button is empty " "
      */
     public void insertIntoRandomNotOccupiedCell(String whoseTurn) {
-        int randomIndex = random.nextInt(8);
+        int randomIndex = random.nextInt(9);
         JButton randomBtn = cells.get(randomIndex);
 
         while (!cells.get(randomIndex).getText().equals(" ")) {
-            randomIndex = random.nextInt(8);
+            randomIndex = random.nextInt(9);
             randomBtn = cells.get(randomIndex);
         }
         randomBtn.setText(whoseTurn);

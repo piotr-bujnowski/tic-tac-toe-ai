@@ -1,6 +1,7 @@
 package tictactoe;
 
-import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Controller
@@ -12,6 +13,7 @@ public class TicTacToeController {
     private TicTacToeModel model;
 
     private int clickCount;
+    private boolean gameEnded = false;
 
     public TicTacToeController(TicTacToe view, TicTacToeModel model) {
         this.view = view;
@@ -45,7 +47,13 @@ public class TicTacToeController {
                 e.setEnabled(false);
                 clickCount++;
 
-                if (clickCount < 9) {
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
+
+                if (!gameEnded) {
                     if (player1Choice.equals("Robot")) {
                         view.insertIntoRandomNotOccupiedCell("X");
                     } else {
@@ -54,21 +62,6 @@ public class TicTacToeController {
                     clickCount++;
                 }
             }
-
-            if (model.isDraw(clickCount)) {
-                view.setStatusLabelText("Draw");
-            }
-
-            if (model.checkRowColWin(view.convertBoardInto2dArray()) == 'X'
-                    || model.checkForCrossWins(view.convertBoardInto2dArray()) == 'X') {
-                view.setStatusLabelText("X wins");
-                view.disableAllCells();
-            } else if (model.checkRowColWin(view.convertBoardInto2dArray()) == 'O'
-                    || model.checkForCrossWins(view.convertBoardInto2dArray()) == 'O') {
-                view.setStatusLabelText("O wins");
-                view.disableAllCells();
-            }
-
         }));
     }
 
@@ -77,6 +70,7 @@ public class TicTacToeController {
             String btnText = view.getStartResetBtnText();
 
             if (btnText.equals("Start")) {
+                startCheckingGameProgress();
                 view.setStatusLabelText("Game in progress");
                 view.getStartResetBtn().setText("Reset");
                 view.getPlayerChoice1Btn().setEnabled(false);
@@ -91,7 +85,25 @@ public class TicTacToeController {
                     clickCount++;
                 }
 
+                if (player1Choice.equals("Robot") && player2Choice.equals("Robot")) {
+                    Timer timer = new Timer();
+                    TimerTask task = new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (gameEnded) {
+                                timer.cancel();
+                                timer.purge();
+                            } else {
+                                view.insertIntoRandomNotOccupiedCell(clickCount % 2 == 0 ? "X" : "O");
+                                clickCount++;
+                            }
+                        }
+                    };
+                    timer.schedule(task, 0, 500);
+                }
+
             } else if (btnText.equals("Reset")) {
+                gameEnded = false;
                 view.setStatusLabelText("Game is not started");
                 view.getStartResetBtn().setText("Start");
                 clickCount = 0;
@@ -128,5 +140,37 @@ public class TicTacToeController {
                 view.getPlayerChoice2Btn().setText("Human");
             }
         });
+    }
+
+    public void startCheckingGameProgress() {
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                if (gameEnded) {
+                    timer.cancel();
+                    timer.purge();
+                } else {
+                    if (model.isDraw(clickCount)) {
+                        view.setStatusLabelText("Draw");
+                        gameEnded = true;
+                    }
+
+                    if (model.checkRowColWin(view.convertBoardInto2dArray()) == 'X'
+                            || model.checkForCrossWins(view.convertBoardInto2dArray()) == 'X') {
+                        view.setStatusLabelText("X wins");
+                        view.disableAllCells();
+                        gameEnded = true;
+                    } else if (model.checkRowColWin(view.convertBoardInto2dArray()) == 'O'
+                            || model.checkForCrossWins(view.convertBoardInto2dArray()) == 'O') {
+                        view.setStatusLabelText("O wins");
+                        view.disableAllCells();
+                        gameEnded = true;
+                    }
+                }
+            }
+        };
+
+        timer.schedule(task, 0, 1);
     }
 }
