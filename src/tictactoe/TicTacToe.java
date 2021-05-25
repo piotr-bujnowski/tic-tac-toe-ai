@@ -20,6 +20,13 @@ public class TicTacToe extends JFrame {
     private JButton startResetBtn;
     private JButton playerChoice1Btn;
     private JButton playerChoice2Btn;
+    private JMenuBar menuBar;
+    private JMenu menu;
+    private JMenuItem menuHumanHuman;
+    private JMenuItem menuHumanRobot;
+    private JMenuItem menuRobotHuman;
+    private JMenuItem menuRobotRobot;
+    private JMenuItem menuExit;
 
     private List<JButton> cells = new ArrayList<>();
 
@@ -70,6 +77,31 @@ public class TicTacToe extends JFrame {
 
         statusBarPanel.add(statusLabel, BorderLayout.LINE_START);
         add(statusBarPanel, BorderLayout.PAGE_END);
+
+        menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+        menu = new JMenu("Game");
+        menu.setName("MenuGame");
+        menuBar.add(menu);
+
+        menuHumanHuman = new JMenuItem("Human vs Human");
+        menuHumanHuman.setName("MenuGame");
+        menuHumanRobot = new JMenuItem("Human vs Robot");
+        menuHumanRobot.setName("MenuHumanRobot");
+        menuRobotHuman = new JMenuItem("Robot vs Human");
+        menuRobotHuman.setName("MenuRobotHuman");
+        menuRobotRobot = new JMenuItem("Robot vs Robot");
+        menuRobotRobot.setName("MenuRobotRobot");
+        menuExit = new JMenuItem("Exit");
+        menuExit.setName("MenuExit");
+
+        menu.add(menuHumanHuman);
+        menu.add(menuHumanRobot);
+        menu.add(menuRobotHuman);
+        menu.add(menuRobotRobot);
+        menu.addSeparator();
+        menu.add(menuExit);
     }
 
     /**
@@ -160,5 +192,29 @@ public class TicTacToe extends JFrame {
 
     public JButton getPlayerChoice2Btn() {
         return playerChoice2Btn;
+    }
+
+    public JMenuItem getMenuHumanHuman() {
+        return menuHumanHuman;
+    }
+
+    public JMenuItem getMenuHumanRobot() {
+        return menuHumanRobot;
+    }
+
+    public JMenuItem getMenuRobotHuman() {
+        return menuRobotHuman;
+    }
+
+    public JMenuItem getMenuRobotRobot() {
+        return menuRobotRobot;
+    }
+
+    public JMenuItem getMenuExit() {
+        return menuExit;
+    }
+
+    public JMenu getMenu() {
+        return menu;
     }
 }

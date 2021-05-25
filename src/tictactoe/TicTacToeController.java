@@ -1,5 +1,6 @@
 package tictactoe;
 
+import javax.swing.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,6 +23,7 @@ public class TicTacToeController {
         addCellsListener();
         addStartResetBtnListener();
         addPlayerChoiceBtnsListener();
+        addMenuListener();
     }
 
     private void addCellsListener() {
@@ -70,54 +72,68 @@ public class TicTacToeController {
             String btnText = view.getStartResetBtnText();
 
             if (btnText.equals("Start")) {
-                startCheckingGameProgress();
-                view.setStatusLabelText("Game in progress");
-                view.getStartResetBtn().setText("Reset");
-                view.getPlayerChoice1Btn().setEnabled(false);
-                view.getPlayerChoice2Btn().setEnabled(false);
-                view.enableAllCells();
-
-                String player1Choice = view.getPlayerChoice1Btn().getText();
-                String player2Choice = view.getPlayerChoice2Btn().getText();
-
-                if (player1Choice.equals("Robot") && player2Choice.equals("Human")) {
-                    view.insertIntoRandomNotOccupiedCell("X");
-                    clickCount++;
-                }
-
-                if (player1Choice.equals("Robot") && player2Choice.equals("Robot")) {
-                    Timer timer = new Timer();
-                    TimerTask task = new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (gameEnded) {
-                                timer.cancel();
-                                timer.purge();
-                            } else {
-                                view.insertIntoRandomNotOccupiedCell(clickCount % 2 == 0 ? "X" : "O");
-                                clickCount++;
-                            }
-                        }
-                    };
-                    timer.schedule(task, 0, 500);
-                }
+                startGame();
 
             } else if (btnText.equals("Reset")) {
-                gameEnded = false;
-                view.setStatusLabelText("Game is not started");
-                view.getStartResetBtn().setText("Start");
-                clickCount = 0;
-
-                view.getCells().forEach(cell -> {
-                    cell.setEnabled(true);
-                    cell.setText(" ");
-                });
-
-                view.disableAllCells();
-                view.getPlayerChoice1Btn().setEnabled(true);
-                view.getPlayerChoice2Btn().setEnabled(true);
+                resetGame();
             }
         });
+    }
+
+    private void resetGame() {
+        gameEnded = false;
+        view.setStatusLabelText("Game is not started");
+        view.getStartResetBtn().setText("Start");
+        clickCount = 0;
+
+        view.getMenu().setEnabled(true);
+
+        view.getCells().forEach(cell -> {
+            cell.setEnabled(true);
+            cell.setText(" ");
+        });
+
+        view.disableAllCells();
+        view.getPlayerChoice1Btn().setEnabled(true);
+        view.getPlayerChoice2Btn().setEnabled(true);
+    }
+
+    private void startGame() {
+        startCheckingGameProgress();
+        view.setStatusLabelText("Game in progress");
+        view.getStartResetBtn().setText("Reset");
+        view.getPlayerChoice1Btn().setEnabled(false);
+        view.getPlayerChoice2Btn().setEnabled(false);
+        view.enableAllCells();
+
+        view.getMenu().setEnabled(false);
+
+        String player1Choice = view.getPlayerChoice1Btn().getText();
+        String player2Choice = view.getPlayerChoice2Btn().getText();
+
+        if (player1Choice.equals("Robot") && player2Choice.equals("Human")) {
+            view.insertIntoRandomNotOccupiedCell("X");
+            clickCount++;
+        }
+
+        if (player1Choice.equals("Robot") && player2Choice.equals("Robot")) {
+            view.disableAllCells();
+
+            Timer timer = new Timer();
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    if (gameEnded) {
+                        timer.cancel();
+                        timer.purge();
+                    } else {
+                        view.insertIntoRandomNotOccupiedCell(clickCount % 2 == 0 ? "X" : "O");
+                        clickCount++;
+                    }
+                }
+            };
+            timer.schedule(task, 0, 500);
+        }
     }
 
     public void addPlayerChoiceBtnsListener() {
@@ -140,6 +156,34 @@ public class TicTacToeController {
                 view.getPlayerChoice2Btn().setText("Human");
             }
         });
+    }
+
+    public void addMenuListener() {
+        view.getMenuHumanHuman().addActionListener(e -> {
+            view.getPlayerChoice1Btn().setText("Human");
+            view.getPlayerChoice2Btn().setText("Human");
+            startGame();
+        });
+
+        view.getMenuHumanRobot().addActionListener(e -> {
+            view.getPlayerChoice1Btn().setText("Human");
+            view.getPlayerChoice2Btn().setText("Robot");
+            startGame();
+        });
+
+        view.getMenuRobotHuman().addActionListener(e -> {
+            view.getPlayerChoice2Btn().setText("Robot");
+            view.getPlayerChoice1Btn().setText("Human");
+            startGame();
+        });
+
+        view.getMenuRobotRobot().addActionListener(e -> {
+            view.getPlayerChoice1Btn().setText("Robot");
+            view.getPlayerChoice2Btn().setText("Robot");
+            startGame();
+        });
+
+        view.getMenuExit().addActionListener(e -> System.exit(0));
     }
 
     public void startCheckingGameProgress() {
