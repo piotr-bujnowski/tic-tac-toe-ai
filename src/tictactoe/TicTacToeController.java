@@ -1,6 +1,6 @@
 package tictactoe;
 
-import javax.swing.*;
+import java.text.MessageFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,8 +39,10 @@ public class TicTacToeController {
                 }
                 e.setEnabled(false);
                 clickCount++;
+                view.setStatusLabelText(whoseTurnMessage("Human"));
             } else if (player1Choice.equals("Human") && player2Choice.equals("Robot")
                     || player1Choice.equals("Robot") && player2Choice.equals("Human")) {
+                view.setStatusLabelText(whoseTurnMessage("Humanooo"));
                 if ((clickCount % 2) == 0) {
                     e.setText("X");
                 } else {
@@ -48,6 +50,7 @@ public class TicTacToeController {
                 }
                 e.setEnabled(false);
                 clickCount++;
+
 
                 try {
                     Thread.sleep(2);
@@ -58,10 +61,13 @@ public class TicTacToeController {
                 if (!gameEnded) {
                     if (player1Choice.equals("Robot")) {
                         view.insertIntoRandomNotOccupiedCell("X");
+                        clickCount++;
+                        view.setStatusLabelText(whoseTurnMessage("Human"));
                     } else {
                         view.insertIntoRandomNotOccupiedCell("O");
+                        clickCount++;
+                        view.setStatusLabelText(whoseTurnMessage("Human"));
                     }
-                    clickCount++;
                 }
             }
         }));
@@ -100,7 +106,7 @@ public class TicTacToeController {
 
     private void startGame() {
         startCheckingGameProgress();
-        view.setStatusLabelText("Game in progress");
+
         view.getStartResetBtn().setText("Reset");
         view.getPlayerChoice1Btn().setEnabled(false);
         view.getPlayerChoice2Btn().setEnabled(false);
@@ -116,6 +122,11 @@ public class TicTacToeController {
             clickCount++;
         }
 
+        if (view.getPlayerChoice1Btn().getText().equals("Human")) {
+            view.setStatusLabelText(whoseTurnMessage("Human"));
+        } else if (view.getPlayerChoice1Btn().getText().equals("Robot")) {
+            view.setStatusLabelText(whoseTurnMessage("Robot"));
+        }
         if (player1Choice.equals("Robot") && player2Choice.equals("Robot")) {
             view.disableAllCells();
 
@@ -127,12 +138,13 @@ public class TicTacToeController {
                         timer.cancel();
                         timer.purge();
                     } else {
+                        view.setStatusLabelText(MessageFormat.format("The turn of Robot Player ({0})", clickCount % 2 == 0 ? "O" : "X"));
                         view.insertIntoRandomNotOccupiedCell(clickCount % 2 == 0 ? "X" : "O");
                         clickCount++;
                     }
                 }
             };
-            timer.schedule(task, 0, 500);
+            timer.schedule(task, 0, 700);
         }
     }
 
@@ -200,21 +212,38 @@ public class TicTacToeController {
                         gameEnded = true;
                     }
 
+                    String winFormat = "The {0} Player ({1}) wins";
+                    String playerChoice1BtnText = view.getPlayerChoice1Btn().getText();
+
                     if (model.checkRowColWin(view.convertBoardInto2dArray()) == 'X'
                             || model.checkForCrossWins(view.convertBoardInto2dArray()) == 'X') {
-                        view.setStatusLabelText("X wins");
-                        view.disableAllCells();
+
                         gameEnded = true;
+                        view.disableAllCells();
+                        if (playerChoice1BtnText.equals("Robot")) {
+                            view.setStatusLabelText(MessageFormat.format(winFormat, "Robot", "X"));
+                        } else if (playerChoice1BtnText.equals("Human")){
+                            view.setStatusLabelText(MessageFormat.format(winFormat, "Human", "X"));
+                        }
                     } else if (model.checkRowColWin(view.convertBoardInto2dArray()) == 'O'
                             || model.checkForCrossWins(view.convertBoardInto2dArray()) == 'O') {
-                        view.setStatusLabelText("O wins");
-                        view.disableAllCells();
+
                         gameEnded = true;
+                        view.disableAllCells();
+                        if (playerChoice1BtnText.equals("Robot")) {
+                            view.setStatusLabelText(MessageFormat.format(winFormat, "Robot", "O"));
+                        } else if (playerChoice1BtnText.equals("Human")){
+                            view.setStatusLabelText(MessageFormat.format(winFormat, "Human", "O"));
+                        }
                     }
                 }
             }
         };
 
         timer.schedule(task, 0, 1);
+    }
+
+    private String whoseTurnMessage(String player) {
+        return MessageFormat.format("The turn of {0} Player ({1})", player, clickCount % 2 == 0 ? "X" : "O");
     }
 }
